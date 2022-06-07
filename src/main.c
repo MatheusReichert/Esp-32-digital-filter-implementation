@@ -2,7 +2,8 @@
 #include "freertos/task.h"
 #include "freertos/timers.h"
 #include "freertos/queue.h"
-#include "signal-acquirer.h"
+#include "signal_acquirer.h"
+#include "filter_moving_average.h"
 
 static QueueHandle_t queue;
 
@@ -10,15 +11,16 @@ static QueueHandle_t queue;
 void readToQueue(){
     int aux = analogRead();
     if(xQueueSend(queue, &aux, pdMS_TO_TICKS(0)) == false){
-        printf("Error");
+        printf("Error, full queue");
     }
 }
 
 void dequeueAndPrint(){
     while(1){
-    int receivedValue = 0;
-    if(xQueueReceive(queue, &receivedValue, pdMS_TO_TICKS(100)) == true){
-        printf("%i\n", receivedValue);
+    int readValue = 0;
+    if(xQueueReceive(queue, &readValue, pdMS_TO_TICKS(100)) == true){
+        moving_average(readValue);
+        printf("%i %i\n", readValue, mv_filtered );
     }
     else{
         printf("Syncro error");
@@ -29,6 +31,7 @@ void dequeueAndPrint(){
 void app_main() {
 
     queue = xQueueCreate(100, sizeof(int));
+
     adc_calibration();
 
     TimerHandle_t timer = xTimerCreate(
