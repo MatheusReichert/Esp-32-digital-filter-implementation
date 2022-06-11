@@ -9,5 +9,5 @@ esp_adc_cal_value_t val_type =
 }
 
 int analogRead(){
-    return esp_adc_cal_raw_to_voltage(adc1_get_raw(ADC_CHANNEL_7), adc_chars);
+    return  esp_adc_cal_raw_to_voltage(adc1_get_raw(ADC_CHANNEL_7), adc_chars);
 }
