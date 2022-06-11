@@ -7,7 +7,6 @@
 
 static QueueHandle_t queue;
 
-
 void readToQueue(){
     int aux = analogRead();
     if(xQueueSend(queue, &aux, pdMS_TO_TICKS(0)) == false){
